@@ -1,0 +1,23 @@
+[project]
+name = "rag-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain==0.3.27",
+    "langchain-community>=0.3.31",
+    "langchain-openai>=0.3.35",
+    "langchain-qdrant>=0.2.1",
+    "langfuse>=3.6.2",
+    "langgraph>=0.6.10",
+    "lark>=1.3.0",
+    "llama-index>=0.13.6",
+    "llama-index-llms-openai>=0.5.4",
+    "markitdown>=0.1.3",
+    "openai>=1.106.1",
+    "python-dotenv>=1.1.1",
+    "qdrant-client>=1.15.1",
+    "streamlit>=1.50.0",
+    "tiktoken>=0.11.0",
+]
