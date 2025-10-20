@@ -1,9 +1,6 @@
-# app/rag_graph.py
-
 from typing import Annotated, List, Dict, Any, Generator, TypedDict
 import re
 
-# Importações de componentes LangChain e LangGraph
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -13,7 +10,6 @@ from langchain_core.structured_query import StructuredQuery
 from langfuse.langchain import CallbackHandler
 from langchain_core.runnables import RunnableConfig
 
-# Importações dos seus outros módulos do projeto
 from app.ingest.embed_qdrant import EmbeddingSelfQuery
 from app.retrieval.retriever import build_self_query_retriever, SelfQueryConfig
 from app.graph.prompt import SYSTEM_PROMPT_JURIDICO
@@ -21,7 +17,7 @@ from app.graph.prompt import SYSTEM_PROMPT_JURIDICO
 langfuse_handler = CallbackHandler()
 
 
-# --- Definição do Estado do Grafo ---
+# Definição do Estado do Grafo
 class RAGState(TypedDict):
     question: str
     docs: List[Document]
@@ -59,7 +55,7 @@ def _format_docs(docs: List[Document]) -> str:
 
 
 # --- Nós do Grafo ---
-def retrieve_and_disclose_query(
+def retrieve(
     state: RAGState,
     config: RunnableConfig,
     collection_name: str = "sumulas_jornada",
@@ -67,7 +63,7 @@ def retrieve_and_disclose_query(
 ) -> Dict[str, Any]:
     """Nó que executa o SelfQueryRetriever e extrai os detalhes da consulta gerada."""
     print("Executando o nó de recuperação...")
-    cfg = SelfQueryConfig(collection_name=collection_name, k=k, verbose=False)
+    cfg = SelfQueryConfig(collection_name=collection_name, k=k)
     retriever = build_self_query_retriever(cfg)
 
     structured_query: StructuredQuery = retriever.query_constructor.invoke(
@@ -91,7 +87,7 @@ def generate_stream(state: RAGState, config: RunnableConfig) -> Dict[str, Any]:
             ("system", SYSTEM_PROMPT_JURIDICO),
             (
                 "human",
-                "Pergunta: {question}\n\nContexto (trechos):\n{context}\n\nResponda de forma direta. Ao final, liste fontes no formato: (Status da Súmula: status_atual, Número da Súmula: num_sumula, Data da Publicação:  data_status).",
+                "Pergunta: {question}\n\nContexto (trechos):\n{context}\n\nResponda de forma direta. Ao final, liste fontes no formato: (Status da Súmula: metadata.status_atual, Número da Súmula: metadata.num_sumula, Data da Publicação:  metadata.data_status).",
             ),
         ]
     )
@@ -114,7 +110,7 @@ def build_streaming_graph(collection_name: str = "sumulas_jornada", k: int = 5):
     graph = StateGraph(RAGState)
     graph.add_node(
         "retrieve",
-        lambda s, config: retrieve_and_disclose_query(
+        lambda s, config: retrieve(
             s, config=config, collection_name=collection_name, k=k
         ),
     )
@@ -135,7 +131,13 @@ def run_streaming_rag(question: str) -> Generator[Dict[str, Any], None, None]:
     Função de alto nível que executa o fluxo RAG e retorna um gerador de eventos para o frontend.
     """
 
-    run_config = {"callbacks": [langfuse_handler], "run_name": "Chat"}
+    # run_config = {"callbacks": [langfuse_handler], "run_name": "Chat"}
+    run_config = RunnableConfig(
+        callbacks=[langfuse_handler],
+        run_name="Chat",
+        tags=["live-demo", "sumulas"],
+        metadata={"collection": "sumulas_jornada", "k": 5, "user": "Caio"},
+    )
 
     initial_state: RAGState = {"question": question, "messages": []}
     final_state = {}

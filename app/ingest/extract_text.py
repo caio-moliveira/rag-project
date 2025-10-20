@@ -7,7 +7,6 @@ from qdrant_client import models
 from qdrant_client.http.models import Distance, VectorParams, SparseVectorParams
 from markitdown import MarkItDown
 from app.ingest.embed_qdrant import EmbeddingSelfQuery
-from langchain_qdrant import QdrantVectorStore
 
 md = MarkItDown()
 
@@ -30,6 +29,7 @@ Analise o texto abaixo e extraia:
 1️⃣ Metadados:
 - num_sumula: número da súmula (ex: 71)
 - data_status: última data (formato DD/MM/AA)
+- data_status_ano: última data (formato AAAA)
 - status_atual: último status (VIGENTE, REVOGADA, ALTERADA, etc.)
 - pdf_name: nome do arquivo PDF
 
@@ -43,6 +43,7 @@ Retorne **somente** um JSON no formato:
   "metadados": {{
     "num_sumula": "...",
     "data_status": "...",
+    "data_status_ano": "...",
     "status_atual": "...",
     "pdf_name": "{pdf_name}"
   }},
@@ -74,6 +75,7 @@ Texto da súmula:
             metadata = {
                 "num_sumula": metadados.get("num_sumula"),
                 "data_status": metadados.get("data_status"),
+                "data_status_ano": metadados.get("data_status_ano"),
                 "status_atual": metadados.get("status_atual"),
                 "pdf_name": metadados.get("pdf_name", pdf_name),
                 "chunk_type": tipo,

@@ -1,8 +1,7 @@
 from qdrant_client import QdrantClient
 from app.utils.settings import settings
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_qdrant import QdrantVectorStore
-from langchain_openai import ChatOpenAI
 
 
 class EmbeddingSelfQuery:
@@ -23,6 +22,6 @@ class EmbeddingSelfQuery:
             client=self.client,
             collection_name=collection_name,
             embedding=self.model,
-            # sparse_vector_name="text-sparse",
+            sparse_vector_name="text-sparse",
             vector_name="text-dense",
         )

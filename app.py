@@ -1,18 +1,17 @@
-# streamlit_app.py
-
 import streamlit as st
 
-# A ÚNICA importação que o frontend precisa do backend
 from app.graph.rag_graph import run_streaming_rag
 
-# --- Configuração da Página e Título ---
-st.set_page_config(page_title="RAG com Self-Query", page_icon="⚖️")
-st.title("⚖️ Assistente Jurídico TCEMG (RAG com Self-Query)")
+# Configuração da Página e Título
+st.set_page_config(
+    page_title="Jornada de Dados",
+)
+st.title("Assistente do Jornada de Dados (RAG com Self-Query)")
 st.write(
     "Faça uma pergunta em linguagem natural sobre as súmulas. O sistema irá inferir filtros e realizar a busca semântica."
 )
 
-# --- Gerenciamento do Histórico de Chat ---
+# Gerenciamento do Histórico de Chat
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -20,7 +19,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# --- Captura da Pergunta e Execução do Fluxo ---
+# Captura da Pergunta e Execução do Fluxo
 if prompt := st.chat_input("Ex: Quais os precedentes da súmula 70 vigente?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
