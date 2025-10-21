@@ -45,12 +45,15 @@ def _format_filter_for_display(filter_obj: Any) -> str:
 
 
 def _format_docs(docs: List[Document]) -> str:
-    """Formata os documentos para o prompt do LLM."""
     parts = []
     for d in docs:
         md = d.metadata or {}
-        head = f"[{md.get('pdf_name', '?')} | Súmula {md.get('num_sumula', '?')} | {md.get('chunk_type', 'chunk')}]"
-        parts.append(f"{head}\n{d.page_content}")
+        head = (
+            f"[{md.get('pdf_name', '?')} | Súmula {md.get('num_sumula', '?')} | {md.get('chunk_type', 'chunk')}]"
+            f"\nstatus_atual: {md.get('status_atual', 'não informado')}"
+            f"\ndata_status: {md.get('data_status', 'não informado')}"
+        )
+        parts.append(f"{head}\n\n{d.page_content}")
     return "\n\n---\n\n".join(parts)
 
 
@@ -168,6 +171,9 @@ def run_streaming_rag(question: str) -> Generator[Dict[str, Any], None, None]:
     sources = [
         {
             "pdf_name": d.metadata.get("pdf_name"),
+            "data_status": d.metadata.get("data_status"),
+            "data_status_ano": d.metadata.get("data_status_ano"),
+            "status_atual": d.metadata.get("status_atual"),
             "num_sumula": d.metadata.get("num_sumula"),
             "chunk_type": d.metadata.get("chunk_type"),
         }
